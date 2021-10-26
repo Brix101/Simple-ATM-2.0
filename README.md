@@ -9,42 +9,42 @@
 
 ### Account Details
 
-![](../Simple-ATM-2.0/images/Account_Details.png)
+![](images/Account_Details.png)
 
 ### Check Balance
 
-![](../Simple-ATM-2.0/images/Check_Balance.png)
+![](images/Check_Balance.png)
 
-![](../Simple-ATM-2.0/images/Check_Balance_2.png)
+![](images/Check_Balance_2.png)
 
 ### Deposit
 
-![](../Simple-ATM-2.0/images/Deposit.png)
+![](images/Deposit.png)
 
 ### Login
 
-![](../Simple-ATM-2.0/images/Login.png)
+![](images/Login.png)
 
 ### Logout
 
-![](../Simple-ATM-2.0/images/Logout.png)
+![](images/Logout.png)
 
 ### Open New Account
 
-![](../Simple-ATM-2.0/images/Open_Account.png)
+![](images/Open_Account.png)
 
 ### Open Existing Account
 
-![](../Simple-ATM-2.0/images/Open_Existing_Account.png)
+![](images/Open_Existing_Account.png)
 
 ### Send Money
 
-![](../Simple-ATM-2.0/images/Send_Money.png)
+![](images/Send_Money.png)
 
 ### Transaction History
 
-![](../Simple-ATM-2.0/images/Transaction_History.png)
+![](images/Transaction_History.png)
 
 ### Withdraw
 
-![](../Simple-ATM-2.0/images/Withdraw.png)
+![](images/Withdraw.png)
