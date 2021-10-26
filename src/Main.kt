@@ -1,5 +1,6 @@
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 fun getCurrentDate():String{
     val sdf = SimpleDateFormat("MMM-dd-yyyy  hh:mm aa")
@@ -14,10 +15,8 @@ open class Customer(var accountNumber:Int = 0, var pin: Int = 0, var name: Strin
     }
 
     override fun toString(): String {
-        return "accountNumber=$accountNumber, pin=$pin, name='$name', balance=$balance, isClose=$isClose"
+        return "accountNumber=$accountNumber, pin=$pin, name='$name', balance=$balance, isClose=$isClose, history=$history"
     }
-
-
 }
 class TransactionHistory(var date:String = "",var amount: Double =0.00,var type: String="") {
 //    return transaction history
@@ -26,11 +25,11 @@ class TransactionHistory(var date:String = "",var amount: Double =0.00,var type:
     }
 }
 
-fun List<Customer>.filterByPin(pin: Int) = this.filter { it.pin == pin } //filter and find Customer By Pin
-fun List<Customer>.filterByAccountNum(accountNumber: Int) = this.filter { it.accountNumber == accountNumber } //filter and find Customer By Account Number
+fun ArrayList<Customer>.filterByPin(pin: Int) = this.filter { it.pin == pin } //filter and find Customer By Pin
+fun ArrayList<Customer>.filterByAccountNum(accountNumber: Int) = this.filter { it.accountNumber == accountNumber } //filter and find Customer By Account Number
 
 
-var CustomerList = listOf(
+var CustomerList = arrayListOf(
     Customer(12345,1010,"Brixter Porras",5000.00,false,arrayListOf(
             TransactionHistory("Oct-15-2021  06:21 PM",5000.00,"Deposit"),
             TransactionHistory("Oct-18-2021  12:21 PM",500.00,"Withdraw"),
@@ -47,74 +46,68 @@ var CustomerList = listOf(
         TransactionHistory("Oct-25-2021  06:21 PM",10200.00,"Sent to bla2x"))
     ),
 )
-fun rand(start: Int, end: Int): Int {
-    require(!(start > end || end - start + 1 > Int.MAX_VALUE)) { "Illegal Argument" }
-    return Random(System.nanoTime()).nextInt(end - start + 1) + start
-}
 
 fun main(){
     ATM().main()
-//    var customer =  CustomerList.filter { it.accountNumber==rand(1, 99999) }
-//        .forEach { return}
-//    println(customer)
 }
 
 
 class ATM : Algorithm(){
     private var isNum = false
-    private var pin=""
-    private var choice=""
+    private var userPin=""
+    private var transactionCode=""
     fun main(){
         println("-----Simple ATM-----")
             while (!isNum){
-                when(choice){
+                when(transactionCode){
                     "1" -> customerLogin()
-                    "2" -> openAccount()
+                    "2" -> openExistingAccount()
+                    "3" -> openNewAccount()
                     "" -> {
-                        println(" 1: Login | 2: Open Account")
-                        choice = readLine().toString()
+                        println(" 1: Login | 2: Open Existing Account | 3: Open New Account")
+                        transactionCode = readLine().toString()
                     }
                 }
             }
-        }
+    }
     private fun customerLogin(){
         try{
-            if(pin==""){
+            if(userPin==""){
                 println("please type 'cancel' to cancel")
                 println("Enter User Pin :")
-                pin = readLine().toString()
-                if(pin=="cancel"){
-                    pin = ""
-                    choice=""
+                userPin = readLine().toString()
+                if(userPin=="cancel"){
+                    userPin = ""
+                    transactionCode=""
                     return
                 }
             }else {
 
-                val customer = loginPin(pin.toInt());
+                val customer = loginPin(userPin.toInt())
                 if(customer!=null){
                     try {
                         toPrint() // to Print Choices
                         val operation = Integer.valueOf(readLine())
-                        performOp(operation,customer)
+                        userTransaction(operation,customer)
                     }catch (e: Exception){
                         println("Please Select On Choices")
                     }
                 }
             }
         }catch(e: Exception){
-            pin = ""
+            userPin = ""
             println("User Not Found")
         }
     }
 
 //    Function to Perform Operation
-    private fun performOp(operator: Any, customer: Customer){
+    private fun userTransaction(operator: Any, customer: Customer){
         when(operator){
             1 -> withdraw(customer)
             2 -> deposit(customer)
             3 -> println("Your Balance :₱ ${retrieveBalance(customer)}")
             4 -> sendMoney(customer)
-            5-> closeAccount(customer)
+            5 -> closeAccount(customer)
             6 -> transactionHistory(customer)
             7 -> exit()
         }
@@ -122,8 +115,8 @@ class ATM : Algorithm(){
 
     private fun exit(){
         println("Exiting...")
-        pin=""
-        choice=""
+        userPin=""
+        transactionCode=""
     }
 
 }
@@ -135,20 +128,20 @@ fun toPrint(){
 
 open class Algorithm{
 //    function to get Customer using pin
-    open fun loginPin(pin: Int):Customer {
-        return CustomerList.filterByPin(pin).last()
+    fun loginPin(pin: Int):Customer? {
+        return CustomerList.filterByPin(pin).firstOrNull()
     }
 
-    fun openAccount() {
-        println("Open Account")
+    fun openNewAccount() {
+        println("Please type 'cancel' to cancel")
+        println("New Account")
+        println(newAccount().toString())
     }
     fun closeAccount(customer: Customer) {
-        var pin = ""
         println("Please type 'cancel' to cancel")
         println("Please Enter Pin")
-        pin = readLine().toString()
+        val pin:String = readLine().toString()
         if(pin=="cancel"){
-            pin = ""
             return
         }
         if (customer.pin == pin.toInt()){
@@ -156,7 +149,11 @@ open class Algorithm{
         }
         println(customer.toString())
     }
-    open fun withdraw(customer: Customer) {
+
+    fun openExistingAccount(){
+
+    }
+     fun withdraw(customer: Customer) {
         println("please type 'cancel' to cancel")
         println("Input Amount to Withdraw :")
         var isAmount = false
@@ -184,7 +181,7 @@ open class Algorithm{
             }
         }
     }
-    open fun deposit(customer: Customer){
+     fun deposit(customer: Customer){
         println("please type 'cancel' to cancel")
         println("Input Amount to Deposit :")
         var isAmount = false
@@ -208,17 +205,17 @@ open class Algorithm{
             }
         }
     }
-    open fun retrieveBalance(customer: Customer): String {
+     fun retrieveBalance(customer: Customer): String {
         return customer.balance.toString()
     }
-    open fun transactionHistory(customer: Customer){
+     fun transactionHistory(customer: Customer){
         println("-----Your Transaction History-----")
         val arr = customer.history
         for (i in arr.indices) {
             println(arr[i].toString())
         }
     }
-    open fun sendMoney(customer: Customer) {
+     fun sendMoney(customer: Customer) {
         var isAccountNumber = false
         var accountNumber = ""
         var accountName = ""
@@ -241,7 +238,6 @@ open class Algorithm{
                         accountName = readLine().toString()
                         if(accountName =="cancel"){
                             isAccountNumber = true
-                            accountNumber = ""
                             return
                         }
                     }
@@ -275,6 +271,30 @@ open class Algorithm{
                 accountNumber=""
             }
         }
+    }
+//    function to generate New User Account
+    private fun newAccount(): Customer {
+        val start = 1
+        val end = 99999
+        require(!(start > end || end - start + 1 > Int.MAX_VALUE)) { "Illegal Argument" }
+
+        val user = Customer(0,0,"",0.00,false, arrayListOf(TransactionHistory()))
+
+        var isNew = false
+        while (!isNew){
+            var newId = Random(System.nanoTime()).nextInt(end - start + 1) + start
+            val isCustomer =  (CustomerList.filter { it.accountNumber == newId }).firstOrNull()
+            if(isCustomer==null){
+                user.accountNumber = newId
+                CustomerList.add(user)
+                isNew = true
+
+            }else{
+                newId = 0
+                isNew = false
+            }
+        }
+        return user
     }
 
 }
