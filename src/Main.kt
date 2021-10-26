@@ -187,7 +187,6 @@ open class Algorithm{
         if (customer.pin == pin.toInt()){
             customer.isClose = true
         }
-        println(customer.toString())
     }
     fun openExistingAccount(): Boolean{
         println("This Account is Closed")
