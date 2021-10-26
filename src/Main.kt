@@ -115,7 +115,7 @@ class ATM : Algorithm(){
         }
     }
 
-//    Function to Perform Operation
+//    Function to Perform Transaction
     private fun userTransaction(transaction: Any, customer: Customer){
         when(transaction){
             1 -> withdraw(customer)
@@ -229,9 +229,11 @@ open class Algorithm{
                     println("Your Balance :₱ $balance")
                     isAmount = true
                 }else{
+                    println("please type 'cancel' to cancel")
                     println("Please Input Amount Lower Than Your Balance :")
                 }
             } catch (e: Exception) {
+                println("please type 'cancel' to cancel")
                 println("Please Input Amount :")
             }
         }
@@ -256,6 +258,7 @@ open class Algorithm{
                 println("Your Balance :₱ $balance")
                 isAmount = true
             }catch (e: Exception){
+                println("please type 'cancel' to cancel")
                 println("Please Input Amount :")
             }
         }
@@ -311,9 +314,11 @@ open class Algorithm{
                                     println("Your Balance :₱ $balance")
                                     isAccountNumber = true
                                 }else{
+                                    println("please type 'cancel' to cancel")
                                     println("Please Input Amount Lower Than Your Balance :")
                                 }
                             }catch (e: Exception){
+                                println("please type 'cancel' to cancel")
                                 println("Please Input A Number")
                             }
                         }else{
@@ -323,6 +328,7 @@ open class Algorithm{
                     }
                 }
             }catch (e: Exception){
+                println("please type 'cancel' to cancel")
                 println("User Not Found")
                 accountNumber=""
             }
