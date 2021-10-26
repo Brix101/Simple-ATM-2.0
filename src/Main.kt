@@ -13,11 +13,16 @@ open class Customer(var accountNumber:Int = 0, var pin: Int = 0, var name: Strin
     fun newTransaction(amount:Double,type:String){
         this.history.add(TransactionHistory(getCurrentDate(),amount,type))
     }
-
+//  return Customer as String
     override fun toString(): String {
         return "accountNumber=$accountNumber, pin=$pin, name='$name', balance=$balance, isClose=$isClose, history=$history"
     }
+    //  return Customer as String
+     fun getUserData(): String {
+        return "accountNumber=$accountNumber, pin=$pin, name='$name'"
+    }
 }
+
 class TransactionHistory(var date:String = "",var amount: Double =0.00,var type: String="") {
 //    return transaction history
     override fun toString(): String {
@@ -40,7 +45,7 @@ var CustomerList = arrayListOf(
         TransactionHistory("Oct-23-2021  10:21 PM",5050.00,"Withdraw"),
         TransactionHistory("Oct-25-2021  06:21 PM",2000.00,"Sent to bla2x"))
     ),
-    Customer(34567,3030,"John Doe" ,24000.00,false,arrayListOf(
+    Customer(34567,3030,"John Doe" ,24000.00,true,arrayListOf(
         TransactionHistory("Oct-17-2021  11:21 PM",50400.00,"Deposit"),
         TransactionHistory("Oct-20-2021  12:21 PM",5040.00,"withdraw"),
         TransactionHistory("Oct-25-2021  06:21 PM",10200.00,"Sent to bla2x"))
@@ -51,7 +56,6 @@ fun main(){
     ATM().main()
 }
 
-
 class ATM : Algorithm(){
     private var isNum = false
     private var userPin=""
@@ -61,10 +65,9 @@ class ATM : Algorithm(){
             while (!isNum){
                 when(transactionCode){
                     "1" -> customerLogin()
-                    "2" -> openExistingAccount()
-                    "3" -> openNewAccount()
-                    "" -> {
-                        println(" 1: Login | 2: Open Existing Account | 3: Open New Account")
+                    "2" -> transactionCode = openNewAccount()
+                    else -> {
+                        println("1: Login | 2: Open New Account ")
                         transactionCode = readLine().toString()
                     }
                 }
@@ -82,16 +85,28 @@ class ATM : Algorithm(){
                     return
                 }
             }else {
-
                 val customer = loginPin(userPin.toInt())
                 if(customer!=null){
-                    try {
-                        toPrint() // to Print Choices
-                        val operation = Integer.valueOf(readLine())
-                        userTransaction(operation,customer)
-                    }catch (e: Exception){
-                        println("Please Select On Choices")
+                    if (customer.isClose){
+                        val isOpen = openExistingAccount()
+                        if(isOpen){
+                            customer.isClose = false
+                        }else{
+                            transactionCode=""
+                            userPin = ""
+                        }
+                    }else{
+                        try {
+                            toPrint(customer.name.toString()) // to Print Choices
+                            val transaction = Integer.valueOf(readLine())
+                            userTransaction(transaction,customer)
+                        }catch (e: Exception){
+                            println("Please Type the Number Of your Transaction")
+                        }
                     }
+                }else{
+                    userPin = ""
+                    println("User Not Found")
                 }
             }
         }catch(e: Exception){
@@ -101,15 +116,16 @@ class ATM : Algorithm(){
     }
 
 //    Function to Perform Operation
-    private fun userTransaction(operator: Any, customer: Customer){
-        when(operator){
+    private fun userTransaction(transaction: Any, customer: Customer){
+        when(transaction){
             1 -> withdraw(customer)
             2 -> deposit(customer)
             3 -> println("Your Balance :₱ ${retrieveBalance(customer)}")
             4 -> sendMoney(customer)
-            5 -> closeAccount(customer)
-            6 -> transactionHistory(customer)
-            7 -> exit()
+            5 -> println(customer.getUserData())
+            6 -> closeAccount(customer)
+            7 -> transactionHistory(customer)
+            8 -> exit()
         }
     }
 
@@ -120,23 +136,47 @@ class ATM : Algorithm(){
     }
 
 }
-//Choices to Print
-fun toPrint(){
-    println("Choose the operation you want to perform:")
-    println(" 1: Withdraw | 2: Deposit | 3: Balance | 4: Send | 5: Close Account | 6: History | 7: Logout ")
-}
 
 open class Algorithm{
-//    function to get Customer using pin
-    fun loginPin(pin: Int):Customer? {
+    //    function to get Customer using pin
+    fun loginPin(pin: Int): Customer? {
         return CustomerList.filterByPin(pin).firstOrNull()
     }
-
-    fun openNewAccount() {
-        println("Please type 'cancel' to cancel")
-        println("New Account")
-        println(newAccount().toString())
+//    function to Open newAccount
+    fun openNewAccount(): String {
+        println("------New Account-----")
+        val newAccount = newAccount()
+        var pin:String
+        var name: String
+        var isString = false
+        while (!isString){
+            try {
+                println("please type 'cancel' to cancel")
+                print("Input 4 digit Number Pin: ")
+                pin = readLine().toString()
+                if (pin=="cancel"){
+                    return ""
+                }
+                if (pin.length==4){
+                    newAccount.pin = pin.toInt()
+                    println("please type 'cancel' to cancel")
+                    print("input your full name: eg John Doe: ")
+                    name = readLine().toString()
+                    return if (name=="cancel"){
+                        ""
+                    }else{
+                        newAccount.name = name
+                        println("New User Created")
+                        ""
+                    }
+                }
+            }catch (e: Exception){
+                println("Please Select 4 digit Pin")
+            }
+        }
+        return ""
     }
+
     fun closeAccount(customer: Customer) {
         println("Please type 'cancel' to cancel")
         println("Please Enter Pin")
@@ -149,11 +189,26 @@ open class Algorithm{
         }
         println(customer.toString())
     }
-
-    fun openExistingAccount(){
-
+    fun openExistingAccount(): Boolean{
+        println("This Account is Closed")
+        println("Open this Account: Y for Yes or N for No")
+        val transaction = readLine().toString()
+        var isOpen = false
+        if(transaction.toLowerCase()=="y"){
+            println("Please Reenter Pin")
+            val pin = readLine().toString()
+            val customer = CustomerList.filterByPin(pin.toInt()).firstOrNull()
+            if (customer!=null){
+                customer.isClose = false
+                isOpen = true
+            }
+        }
+        if(transaction.toLowerCase()=="n"){
+            isOpen = false
+        }
+        return isOpen
     }
-     fun withdraw(customer: Customer) {
+    fun withdraw(customer: Customer) {
         println("please type 'cancel' to cancel")
         println("Input Amount to Withdraw :")
         var isAmount = false
@@ -181,7 +236,7 @@ open class Algorithm{
             }
         }
     }
-     fun deposit(customer: Customer){
+    fun deposit(customer: Customer){
         println("please type 'cancel' to cancel")
         println("Input Amount to Deposit :")
         var isAmount = false
@@ -205,17 +260,17 @@ open class Algorithm{
             }
         }
     }
-     fun retrieveBalance(customer: Customer): String {
+    fun retrieveBalance(customer: Customer): String {
         return customer.balance.toString()
     }
-     fun transactionHistory(customer: Customer){
+    fun transactionHistory(customer: Customer){
         println("-----Your Transaction History-----")
         val arr = customer.history
         for (i in arr.indices) {
             println(arr[i].toString())
         }
     }
-     fun sendMoney(customer: Customer) {
+    fun sendMoney(customer: Customer) {
         var isAccountNumber = false
         var accountNumber = ""
         var accountName = ""
@@ -251,6 +306,7 @@ open class Algorithm{
                                     val balance = money - (amount.toDouble())
                                     customer2.balance = customer2.balance + amount.toDouble()
                                     customer.balance = balance
+                                    customer.newTransaction((amount.toDouble()),"Transfer to ${customer2.name}")
                                     println("₱ $amount Transfer to ${customer2.name} Successfully")
                                     println("Your Balance :₱ $balance")
                                     isAccountNumber = true
@@ -278,11 +334,12 @@ open class Algorithm{
         val end = 99999
         require(!(start > end || end - start + 1 > Int.MAX_VALUE)) { "Illegal Argument" }
 
-        val user = Customer(0,0,"",0.00,false, arrayListOf(TransactionHistory()))
+        val user = Customer(0,0,"",0.00,false, arrayListOf())
 
         var isNew = false
         while (!isNew){
             var newId = Random(System.nanoTime()).nextInt(end - start + 1) + start
+//            Scan if User ID is Taken
             val isCustomer =  (CustomerList.filter { it.accountNumber == newId }).firstOrNull()
             if(isCustomer==null){
                 user.accountNumber = newId
@@ -296,6 +353,10 @@ open class Algorithm{
         }
         return user
     }
-
+    //Choices to Print
+    fun toPrint(name: String){
+        println("$name Please Type the Number of transaction you want to perform")
+        println(" 1: Withdraw | 2: Deposit | 3: Balance | 4: Send | 5: Account Details | 6: Close Account | 7: Transaction History | 8: Logout ")
+    }
 }
 
