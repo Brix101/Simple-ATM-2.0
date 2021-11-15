@@ -60,12 +60,11 @@ fun main(){
 }
 
 class ATM : Algorithm(){
-    private var isNum = false
     private var userPin=""
     private var transactionCode=""
     fun main(){
         println("-----Simple ATM-----")
-        while (!isNum){
+        while (true){
             when(transactionCode){
                 "1" -> customerLogin()
                 "2" -> transactionCode = openNewAccount()
