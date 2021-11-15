@@ -1,3 +1,5 @@
+
+
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -9,22 +11,22 @@ fun getCurrentDate():String{
 
 
 open class Customer(var accountNumber:Int = 0, var pin: Int = 0, var name: String= "", var balance: Double =0.00 ,var isClose: Boolean = false, var history: ArrayList<TransactionHistory> ){
-//    function to create transaction history
+    //    function to create transaction history
     fun newTransaction(amount:Double,type:String){
         this.history.add(TransactionHistory(getCurrentDate(),amount,type))
     }
-//  return Customer as String
+    //  return Customer as String
     override fun toString(): String {
         return "accountNumber=$accountNumber, pin=$pin, name='$name', balance=$balance, isClose=$isClose, history=$history"
     }
     //  return Customer as String
-     fun getUserData(): String {
+    fun getUserData(): String {
         return "accountNumber=$accountNumber, pin=$pin, name='$name'"
     }
 }
 
-class TransactionHistory(var date:String = "",var amount: Double =0.00,var type: String="") {
-//    return transaction history
+class TransactionHistory(private var date:String = "",private var amount: Double =0.00,private var type: String="") {
+    //    return transaction history
     override fun toString(): String {
         return "date='$date', amount=$amount, type='$type'"
     }
@@ -36,9 +38,9 @@ fun ArrayList<Customer>.filterByAccountNum(accountNumber: Int) = this.filter { i
 
 var CustomerList = arrayListOf(
     Customer(12345,1010,"Brixter Porras",5000.00,false,arrayListOf(
-            TransactionHistory("Oct-15-2021  06:21 PM",5000.00,"Deposit"),
-            TransactionHistory("Oct-18-2021  12:21 PM",500.00,"Withdraw"),
-            TransactionHistory("Oct-25-2021  06:21 PM",1000.00,"Sent to bla2x"))
+        TransactionHistory("Oct-15-2021  06:21 PM",5000.00,"Deposit"),
+        TransactionHistory("Oct-18-2021  12:21 PM",500.00,"Withdraw"),
+        TransactionHistory("Oct-25-2021  06:21 PM",1000.00,"Sent to bla2x"))
     ),
     Customer(23456,2020,"Jane Doe" ,76000.00,false,arrayListOf(
         TransactionHistory("Oct-12-2021  08:21 PM",45000.00,"Deposit"),
@@ -53,7 +55,8 @@ var CustomerList = arrayListOf(
 )
 
 fun main(){
-    ATM().main()
+    val atm = ATM()
+    atm.main()
 }
 
 class ATM : Algorithm(){
@@ -62,16 +65,16 @@ class ATM : Algorithm(){
     private var transactionCode=""
     fun main(){
         println("-----Simple ATM-----")
-            while (!isNum){
-                when(transactionCode){
-                    "1" -> customerLogin()
-                    "2" -> transactionCode = openNewAccount()
-                    else -> {
-                        println("1: Login | 2: Open New Account ")
-                        transactionCode = readLine().toString()
-                    }
+        while (!isNum){
+            when(transactionCode){
+                "1" -> customerLogin()
+                "2" -> transactionCode = openNewAccount()
+                else -> {
+                    println("1: Login | 2: Open New Account ")
+                    transactionCode = readLine().toString()
                 }
             }
+        }
     }
     private fun customerLogin(){
         try{
@@ -97,7 +100,7 @@ class ATM : Algorithm(){
                         }
                     }else{
                         try {
-                            toPrint(customer.name.toString()) // to Print Choices
+                            toPrint(customer.name) // to Print Choices
                             val transaction = Integer.valueOf(readLine())
                             userTransaction(transaction,customer)
                         }catch (e: Exception){
@@ -115,7 +118,7 @@ class ATM : Algorithm(){
         }
     }
 
-//    Function to Perform Transaction
+    //    Function to Perform Transaction
     private fun userTransaction(transaction: Any, customer: Customer){
         when(transaction){
             1 -> withdraw(customer)
@@ -142,14 +145,13 @@ open class Algorithm{
     fun loginPin(pin: Int): Customer? {
         return CustomerList.filterByPin(pin).firstOrNull()
     }
-//    function to Open newAccount
+    //    function to Open newAccount
     fun openNewAccount(): String {
         println("------New Account-----")
         val newAccount = newAccount()
         var pin:String
         var name: String
-        var isString = false
-        while (!isString){
+        while (true){
             try {
                 println("please type 'cancel' to cancel")
                 print("Input 4 digit Number Pin: ")
@@ -174,7 +176,6 @@ open class Algorithm{
                 println("Please Select 4 digit Pin")
             }
         }
-        return ""
     }
 
     fun closeAccount(customer: Customer) {
@@ -193,7 +194,7 @@ open class Algorithm{
         println("Open this Account: Y for Yes or N for No")
         val transaction = readLine().toString()
         var isOpen = false
-        if(transaction.toLowerCase()=="y"){
+        if(transaction.lowercase(Locale.getDefault()) =="y"){
             println("Please Reenter Pin")
             val pin = readLine().toString()
             val customer = CustomerList.filterByPin(pin.toInt()).firstOrNull()
@@ -202,7 +203,7 @@ open class Algorithm{
                 isOpen = true
             }
         }
-        if(transaction.toLowerCase()=="n"){
+        if(transaction.lowercase(Locale.getDefault()) =="n"){
             isOpen = false
         }
         return isOpen
@@ -210,12 +211,10 @@ open class Algorithm{
     fun withdraw(customer: Customer) {
         println("please type 'cancel' to cancel")
         println("Input Amount to Withdraw :")
-        var isAmount = false
-        while (!isAmount) {
+        while (true) {
             try {
                 val amount = readLine()
                 if(amount =="cancel"){
-                    isAmount = true
                     return
                 }
                 val money = customer.balance
@@ -226,7 +225,7 @@ open class Algorithm{
                     customer.newTransaction(amountToDouble,"Withdraw")
                     println("₱ $amount withdraw Successfully")
                     println("Your Balance :₱ $balance")
-                    isAmount = true
+                    return
                 }else{
                     println("please type 'cancel' to cancel")
                     println("Please Input Amount Lower Than Your Balance :")
@@ -240,12 +239,10 @@ open class Algorithm{
     fun deposit(customer: Customer){
         println("please type 'cancel' to cancel")
         println("Input Amount to Deposit :")
-        var isAmount = false
-        while (!isAmount) {
+        while (true) {
             try {
                 val amount = readLine()
                 if(amount =="cancel"){
-                    isAmount = true
                     return
                 }
                 val money = customer.balance
@@ -255,7 +252,7 @@ open class Algorithm{
                 customer.newTransaction(amountToDouble,"Deposit")
                 println("₱ $amount Deposit Successfully")
                 println("Your Balance :₱ $balance")
-                isAmount = true
+                return
             }catch (e: Exception){
                 println("please type 'cancel' to cancel")
                 println("Please Input Amount :")
@@ -273,18 +270,16 @@ open class Algorithm{
         }
     }
     fun sendMoney(customer: Customer) {
-        var isAccountNumber = false
         var accountNumber = ""
         var accountName = ""
         val money = customer.balance
-        while (!isAccountNumber) {
+        while (true) {
             try {
                 if(accountNumber==""){
                     println("please type 'cancel' to cancel")
                     println("Input Account Number of Receiver")
                     accountNumber = readLine().toString()
                     if(accountNumber =="cancel"){
-                        isAccountNumber = true
                         return
                     }
                 }else {
@@ -294,7 +289,6 @@ open class Algorithm{
                         println("Input Account Name of Receiver")
                         accountName = readLine().toString()
                         if(accountName =="cancel"){
-                            isAccountNumber = true
                             return
                         }
                     }
@@ -311,7 +305,7 @@ open class Algorithm{
                                     customer.newTransaction((amount.toDouble()),"Transfer to ${customer2.name}")
                                     println("₱ $amount Transfer to ${customer2.name} Successfully")
                                     println("Your Balance :₱ $balance")
-                                    isAccountNumber = true
+                                    return
                                 }else{
                                     println("please type 'cancel' to cancel")
                                     println("Please Input Amount Lower Than Your Balance :")
@@ -333,7 +327,7 @@ open class Algorithm{
             }
         }
     }
-//    function to generate New User Account
+    //    function to generate New User Account
     private fun newAccount(): Customer {
         val start = 1
         val end = 99999
@@ -341,19 +335,17 @@ open class Algorithm{
 
         val user = Customer(0,0,"",0.00,false, arrayListOf())
 
-        var isNew = false
-        while (!isNew){
+        while (true){
             var newId = Random(System.nanoTime()).nextInt(end - start + 1) + start
 //            Scan if User ID is Taken
             val isCustomer =  (CustomerList.filter { it.accountNumber == newId }).firstOrNull()
             if(isCustomer==null){
                 user.accountNumber = newId
                 CustomerList.add(user)
-                isNew = true
-
+                break
             }else{
                 newId = 0
-                isNew = false
+                break
             }
         }
         return user
@@ -364,4 +356,3 @@ open class Algorithm{
         println(" 1: Withdraw | 2: Deposit | 3: Balance | 4: Send | 5: Account Details | 6: Close Account | 7: Transaction History | 8: Logout ")
     }
 }
-
